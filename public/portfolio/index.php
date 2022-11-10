@@ -1,8 +1,4 @@
 <?php
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors', true);
-ini_set('display_startup_errors', true);
-
 $TOKEN = parse_ini_file('../.env')['GH_TOKEN'];
 $headers = [
 	'User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)',
