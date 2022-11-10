@@ -41,7 +41,7 @@ for ($i = 0; $i < count($raw_repositories); $i++) {
 }
 
 $data = [
-	'bio' => fetch('https://raw.githubusercontent.com/efiand/efiand.github.io/master/docs/about.md', $headers),
+	'bio' => fetch('https://raw.githubusercontent.com/efiand/efiand.github.io/main/docs/about.md', $headers),
 	'repositories' => $repositories
 ];
 
