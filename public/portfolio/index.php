@@ -1,4 +1,7 @@
 <?php
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', true);
+ini_set('display_startup_errors', true);
 
 $TOKEN = parse_ini_file('../.env')['GH_TOKEN'];
 $headers = [
@@ -7,8 +10,28 @@ $headers = [
 ];
 
 function adapt_repos($repo) {
+	global $headers;
+
+	$created_at = strtotime($repo['created_at']);
+	$languages = [];
+
+	$raw_languages = json_decode(fetch($repo['languages_url'], $headers), true);
+	foreach ($raw_languages as $name => $count) {
+		if ($count > 1000) {
+			$languages[] = $name;
+		}
+	}
+
 	return [
-		'createdAt' => strtotime($repo['created_at'])
+		'id' => $created_at,
+		'date' => date('d.m.Y', $created_at),
+		'description' => $repo['description'],
+		'homepage' => $repo['homepage'],
+		'languages' => $languages,
+		'name' => $repo['name'],
+		'topics' => $repo['topics'],
+		'url' => $repo['html_url'],
+		'year' => date('Y', $created_at)
 	];
 }
 
