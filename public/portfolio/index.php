@@ -5,13 +5,13 @@ $headers = [
 	'Authorization: Basic '. base64_encode('efiand:' . $TOKEN)
 ];
 
-function adapt_repos($repo) {
+function adapt_repos($repo, $languages_data) {
 	global $headers;
 
 	$created_at = strtotime($repo['created_at']);
-	$languages = [];
+	$raw_languages = json_decode($languages_data, true);
 
-	$raw_languages = json_decode(fetch($repo['languages_url'], $headers), true);
+	$languages = [];
 	foreach ($raw_languages as $name => $count) {
 		if ($count > 1000) {
 			$languages[] = $name;
@@ -31,17 +31,30 @@ function adapt_repos($repo) {
 	];
 }
 
-$raw_repositories = json_decode(fetch('https://api.github.com/users/efiand/repos?per_page=100', $headers), true);
+[$fetched_repositories, $bio] = multifetch([
+	'https://api.github.com/users/efiand/repos?per_page=100',
+	'https://raw.githubusercontent.com/efiand/efiand.github.io/main/docs/about.md'
+], $headers);
+$raw_repositories = json_decode($fetched_repositories, true);
 
-$repositories = [];
-for ($i = 0; $i < count($raw_repositories); $i++) {
-	if (array_search('portfolio-project', $raw_repositories[$i]['topics'])) {
-		$repositories[] = adapt_repos($raw_repositories[$i]);
+$languages_urls = [];
+$filtered_repositories = [];
+foreach ($raw_repositories as $repo) {
+	if (array_search('portfolio-project', $repo['topics'])) {
+		$languages_urls[] = $repo['languages_url'];
+		$filtered_repositories[] = $repo;
 	}
 }
 
+$languages_data = multifetch($languages_urls, $headers);
+
+$repositories = [];
+foreach ($filtered_repositories as $i => $repo) {
+	$repositories[] = adapt_repos($repo, $languages_data[$i]);
+}
+
 $data = [
-	'bio' => fetch('https://raw.githubusercontent.com/efiand/efiand.github.io/main/docs/about.md', $headers),
+	'bio' => $bio,
 	'repositories' => $repositories
 ];
 
