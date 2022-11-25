@@ -18,6 +18,8 @@ function adapt_repos($repo, $languages_data) {
 		}
 	}
 
+	array_splice($repo['topics'], array_search('portfolio-project', $repo['topics']), 1);
+
 	return [
 		'id' => $created_at,
 		'date' => date('d.m.Y', $created_at),
